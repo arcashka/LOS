@@ -3,17 +3,17 @@
 #include <memory>
 #include <vector>
 
-struct Matrix;
+#include "ISolver.h"
 
 using namespace std;
 
-class Solver
+class Solver : public ISolver
 {
 public:
 	Solver(shared_ptr<Matrix> a, vector<double>& b);
 
 	// x0 - начальное приближение, maxItt - максимальное количество иттераций
-	vector<double>  Solve(vector<double>& x0, double eps, int maxItt);
+	vector<double>  Solve(vector<double>& x0, double eps, int maxItt) override;
 
 private:
 	// скалярное произведение векторов vec1 и vec2

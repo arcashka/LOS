@@ -1,7 +1,7 @@
-#include "solver.h"
+#include "Solver.h"
 #include "iostream"
 
-#include "matrix.h"
+#include "source/Matrix.h"
 
 vector<double> operator*(double alpha, const vector<double>& v)
 {
@@ -73,7 +73,7 @@ Solver::Solver(shared_ptr<Matrix> a, vector<double>& b) :
 vector<double> Solver::Solve(vector<double>& x0, double eps, int maxItt)
 {
 	vector<double> r = b - a * x0;
-	vector<double> z = r;
+	vector<double> p = r;
 	vector<double> x = x0;
 
 	double alpha;
@@ -86,11 +86,11 @@ vector<double> Solver::Solve(vector<double>& x0, double eps, int maxItt)
 	for(int k = 0; k < maxItt; k++)
 	{
 		double rrScalar = FindScalar(r, r);
-		alpha = rrScalar / FindScalar(a * z, z);
-		x = x + (alpha * z);
-		r = r - (alpha * (a * z));
+		alpha = rrScalar / FindScalar(a * p, p);
+		x = x + (alpha * p);
+		r = r - (alpha * (a * p));
 		beta = FindScalar(r, r) / rrScalar;
-		z = r + (beta * z);
+		p = r + (beta * p);
 
 		double diff = rrScalar / bbScalar;
 		cout << k + 1 << "\t" << "diff = " << diff << "\t" << "-> " << x << "\n";

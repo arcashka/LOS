@@ -16,11 +16,11 @@ endif()
 find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
 find_package(OpenGL REQUIRED)
 
-set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -std=c++0x")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z")
 
 set(SOURCES source/main.cpp
-		source/solver.cpp
-		source/solvergpu.cpp
+		source/solver/Solver.cpp
+		source/solver/SolverGPU.cpp
 )
 
 include_directories(
@@ -29,5 +29,5 @@ include_directories(
 		${QT_INCLUDES}
 )
 
-add_executable(${PROJECT_NAME} ${SOURCES})
+add_executable(${PROJECT_NAME} ${SOURCES} resources/resources.qrc)
 target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES} Qt5::Core Qt5::Widgets)
