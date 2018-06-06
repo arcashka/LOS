@@ -33,8 +33,6 @@ int main(int argc, char *argv[])
 			return new Solver(matrix, b);
 	};
 
-	ISolver* solver = CreateSolver(std::make_shared<Matrix>(matrix), b, parser.isSet("gpuOption"));
+	ISolver* solver = CreateSolver(std::make_shared<Matrix>(matrix), b, parser.isSet(gpuOption));
 	solver->Solve(x0, 1e-10, 40);
-
-//	return a.exec();
 }
