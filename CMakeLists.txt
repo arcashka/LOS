@@ -6,6 +6,8 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(OpenGL_GL_PREFERENCE "GLVND")
 
+include(${CMAKE_CURRENT_SOURCE_DIR}/source/matrixGenerator/Generator.cmake)
+
 if(EXISTS "${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json")
 	EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E copy_if_different
 		${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json
@@ -21,6 +23,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z")
 set(SOURCES source/main.cpp
 		source/solver/Solver.cpp
 		source/solver/SolverGPU.cpp
+		${ADDITIONAL_SOURCE}
 )
 
 include_directories(
