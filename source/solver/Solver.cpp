@@ -1,7 +1,7 @@
 #include "Solver.h"
 #include "iostream"
 
-#include "source/Matrix.h"
+#include "source/matrixGenerator/Matrix.h"
 
 vector<double> operator*(double alpha, const vector<double>& v)
 {
@@ -65,20 +65,20 @@ ostream& operator<<(ostream& out, const vector<T>& vec)
 	return out;
 }
 
-Solver::Solver(shared_ptr<Matrix> a, vector<double>& b) :
-	a(a), b(b)
+Solver::Solver(shared_ptr<Matrix> a) :
+	a(a)
 {
 }
 
 vector<double> Solver::Solve(vector<double>& x0, double eps, int maxItt)
 {
-	vector<double> r = b - a * x0;
+	vector<double> r = a->b - a * x0;
 	vector<double> p = r;
 	vector<double> x = x0;
 
 	double alpha;
 	double beta;
-	double bbScalar = FindScalar(b, b);
+	double bbScalar = FindScalar(a->b, a->b);
 
 	cout << "0" << "\t" << "-> " << x << "\n";
 

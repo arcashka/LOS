@@ -6,8 +6,10 @@
 #include <QTimer>
 #include <QEventLoop>
 
-SolverGPU::SolverGPU(shared_ptr<Matrix> a, vector<double>& b)
-	: a(a), b(b)
+#include "source/matrixGenerator/Matrix.h"
+
+SolverGPU::SolverGPU(shared_ptr<Matrix> a)
+	: a(a)
 {
 	QSurfaceFormat format;
 	format.setMajorVersion(4);

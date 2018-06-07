@@ -1,0 +1,3 @@
+[submodule "source/matrixGenerator"]
+	path = source/matrixGenerator
+	url = https://github.com/arcashka/matrixGenerator.git

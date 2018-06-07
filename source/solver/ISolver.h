@@ -3,8 +3,6 @@
 #include <vector>
 #include <memory>
 
-#include "source/Matrix.h"
-
 class ISolver
 {
 public:
