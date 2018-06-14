@@ -13,7 +13,7 @@ bool Solver::Solve(vector<double> & x, const vector<double> & x0, double eps, in
 {
 	vector<double> r = a->b - a * x0;
 	vector<double> p = r;
-	x = x0;
+	x = std::move(x0);
 
 	double alpha;
 	double beta;
