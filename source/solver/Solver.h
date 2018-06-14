@@ -12,11 +12,11 @@ using namespace std;
 class Solver : public ISolver
 {
 public:
-	Solver(shared_ptr<Matrix> a);
+	Solver(const shared_ptr<Matrix> a);
 
 	// x0 - начальное приближение, maxItt - максимальное количество иттераций
-	vector<double>  Solve(vector<double>& x0, double eps, int maxItt) override;
+	bool Solve(vector<double> & x, const vector<double> & x0, double eps, int maxItt) override;
 
 private:
-	shared_ptr<Matrix> a;
+	const shared_ptr<Matrix> a;
 };

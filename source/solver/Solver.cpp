@@ -4,22 +4,22 @@
 #include "source/matrixGenerator/Matrix.h"
 #include "MatrixUtils.h"
 
-Solver::Solver(shared_ptr<Matrix> a) :
+Solver::Solver(const shared_ptr<Matrix> a) :
 	a(a)
 {
 }
 
-vector<double> Solver::Solve(vector<double>& x0, double eps, int maxItt)
+bool Solver::Solve(vector<double> & x, const vector<double> & x0, double eps, int maxItt)
 {
 	vector<double> r = a->b - a * x0;
 	vector<double> p = r;
-	vector<double> x = x0;
+	x = x0;
 
 	double alpha;
 	double beta;
 	double bbScalar = FindScalar(a->b, a->b);
 
-	for(int k = 0; k < maxItt; k++)
+	for (int k = 0; k < maxItt; k++)
 	{
 		double rrScalar = FindScalar(r, r);
 		alpha = rrScalar / FindScalar(a * p, p);
@@ -31,8 +31,9 @@ vector<double> Solver::Solve(vector<double>& x0, double eps, int maxItt)
 		double diff = rrScalar / bbScalar;
 		cout << k + 1 << "\t" << "diff = " << diff << std::endl;
 
-		if(diff < eps)
+	if (diff < eps)
 			break;
 	}
-	return x;
+	
+	return true;
 }

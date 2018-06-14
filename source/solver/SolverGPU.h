@@ -17,9 +17,9 @@ class SolverGPU : public QObject, public ISolver
 {
 	Q_OBJECT
 public:
-	SolverGPU(shared_ptr<Matrix> a);
+	SolverGPU(const shared_ptr<Matrix> a);
 
-	vector<double> Solve(vector<double>& x0, double eps, int maxItt) override;
+	bool Solve(vector<double> & x, const vector<double> & x0, double eps, int maxItt) override;
 
 private:
 	shared_ptr<Matrix> a;

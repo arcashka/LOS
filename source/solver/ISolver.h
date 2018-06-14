@@ -6,5 +6,5 @@
 class ISolver
 {
 public:
-	virtual std::vector<double> Solve(std::vector<double>& x0, double eps, int maxItt) = 0;
+	virtual bool Solve(std::vector<double> & x, const std::vector<double> & x0, double eps, int maxItt) = 0;
 };

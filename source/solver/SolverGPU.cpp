@@ -8,7 +8,7 @@
 
 #include "source/matrixGenerator/Matrix.h"
 
-SolverGPU::SolverGPU(shared_ptr<Matrix> a)
+SolverGPU::SolverGPU(const shared_ptr<Matrix> a)
 	: a(a)
 {
 	QSurfaceFormat format;
@@ -45,10 +45,11 @@ SolverGPU::SolverGPU(shared_ptr<Matrix> a)
 	std::cout << "GL_MAX_COMPUTE_SHARED_MEMORY_SIZE\t" << maxSharedMemorySize << endl;
 }
 
-vector<double> SolverGPU::Solve(vector<double>& x0, double eps, int maxItt)
+bool SolverGPU::Solve(vector<double> & x, const vector<double> & x0, double eps, int maxItt)
 {
 	auto pew = eps + maxItt;
 	pew += x0.size();
 	std::vector<double> a;
-	return a;
+	x = x0;
+	return true;
 }
