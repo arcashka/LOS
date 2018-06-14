@@ -32,7 +32,7 @@ bool Solver::Solve(vector<double> & x, const vector<double> & x0, double eps, in
 		cout << k + 1 << "\t" << "diff = " << diff << std::endl;
 
 	if (diff < eps)
-			break;
+		break;
 	}
 	
 	return true;

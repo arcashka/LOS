@@ -19,20 +19,24 @@ int main(int argc, char *argv[])
 	QCommandLineOption outOption(QStringList() << "o" << "out", "Write output (x) to file");
 	QCommandLineOption sizeOption("size", "Matrix Dimension", "size");
 	QCommandLineOption sparsenessOption("sparseness", "Matrix sparness. If set to n - only every n element will be set to none zero value", "sparseness");
+	QCommandLineOption maxIttOption("maxItt", "Matrix Dimension", "Maximum itteration");
 
 	parser.addOption(gpuOption);
 	parser.addOption(sizeOption);
 	parser.addOption(sparsenessOption);
+	parser.addOption(maxIttOption);
 	parser.addOption(outOption);
 	parser.process(a);
 
-	int defaultSize = 100;
+	int defaultSize       = 100;
 	int defaultSparseness = 10;
+	int defaultMaxItt     = 40;
 
 	bool useGPU      = parser.isSet(gpuOption);
 	bool writeResult = parser.isSet(outOption);
-	int  size        = parser.isSet(sizeOption) ? parser.value(sizeOption).toInt() : defaultSize;
+	int  size        = parser.isSet(sizeOption)       ? parser.value(sizeOption).toInt()       : defaultSize;
 	int  sparseness  = parser.isSet(sparsenessOption) ? parser.value(sparsenessOption).toInt() : defaultSparseness;
+	int  maxItt      = parser.isSet(maxIttOption)     ? parser.value(maxIttOption).toInt()     : defaultMaxItt;
 
 	IGenerator* generator = (IGenerator*)new Generator();
 
@@ -57,7 +61,7 @@ int main(int argc, char *argv[])
 	ISolver* solver = CreateSolver(matrix, parser.isSet(gpuOption));
 	std::vector<double> x;
 	
-	writeResult &= solver->Solve(x, x0, 1e-10, 40);
+	writeResult &= solver->Solve(x, x0, 1e-10, maxItt);
 	
 	if (writeResult)
 	{
