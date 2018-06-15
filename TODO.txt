@@ -1,0 +1,1 @@
+1. b shouldn't be a part of Matrix. Make some struct that holds Matrix and b separately
