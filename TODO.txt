@@ -3,3 +3,4 @@ DONE 1. b shouldn't be a part of Matrix. Make some struct that holds Matrix and 
 3. Make real class (just utils functions maybe) to some matrix operations
 4. CODESTYLE
 5. Make sure you at least know what ur doing with std::move in Generator.cpp
+DONE 6. Clear main, split something in functions KISS

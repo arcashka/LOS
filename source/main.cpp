@@ -3,17 +3,29 @@
 
 #include <iostream>
 
-#include "solver/Solver.h"
-#include "solver/SolverGPU.h"
+#include "source/solver/CreateSolver.h"
+#include "source/solver/ISolver.h"
 
-#include "matrixGenerator/Generator.h"
-
+#include "source/matrixGenerator/CreateGenerator.h"
 #include "LinearSystem.h"
 
-int main(int argc, char *argv[])
+struct UserSettings
 {
-	QApplication a(argc, argv);
+	bool useGPU;
+	bool writeResult;
+	int  size;
+	int  sparseness;
+	int  maxItt;
+};
 
+namespace {
+	int DEFAULT_SIZE       = 100;
+	int DEFAULT_SPARSENESS = 10;
+	int DEFAULT_MAX_ITT    = 40;
+}
+
+void ProcessCmdArgs(UserSettings& settings, const QStringList& args)
+{
 	QCommandLineParser parser;
 	parser.addHelpOption();
 
@@ -28,47 +40,43 @@ int main(int argc, char *argv[])
 	parser.addOption(sparsenessOption);
 	parser.addOption(maxIttOption);
 	parser.addOption(outOption);
-	parser.process(a);
 
-	int defaultSize       = 100;
-	int defaultSparseness = 10;
-	int defaultMaxItt     = 40;
+	parser.process(args);
 
-	bool useGPU      = parser.isSet(gpuOption);
-	bool writeResult = parser.isSet(outOption);
-	int  size        = parser.isSet(sizeOption)       ? parser.value(sizeOption).toInt()       : defaultSize;
-	int  sparseness  = parser.isSet(sparsenessOption) ? parser.value(sparsenessOption).toInt() : defaultSparseness;
-	int  maxItt      = parser.isSet(maxIttOption)     ? parser.value(maxIttOption).toInt()     : defaultMaxItt;
+	settings.useGPU = parser.isSet(gpuOption);
+	settings.writeResult = parser.isSet(outOption);
+	settings.size        = parser.isSet(sizeOption)       ? parser.value(sizeOption).toInt()       : DEFAULT_SIZE;
+	settings.sparseness  = parser.isSet(sparsenessOption) ? parser.value(sparsenessOption).toInt() : DEFAULT_SPARSENESS;
+	settings.maxItt      = parser.isSet(maxIttOption)     ? parser.value(maxIttOption).toInt()     : DEFAULT_MAX_ITT;
+}
 
-	IGenerator* generator = (IGenerator*)new Generator();
+void WriteResult(const std::vector<double> & x)
+{
+	for(auto elem : x)
+		std::cout << elem << " ";
+	std::cout << std::endl;
+}
 
-	auto CreateSolver = [](const std::shared_ptr<LinearSystem> system, bool useGPU) -> ISolver* {
-		if(useGPU)
-			return new SolverGPU(system);
-		else
-			return new Solver(system);
-	};	
+int main(int argc, char *argv[])
+{
+	QStringList args;
+	for (int i = 0; i < argc; ++i)
+		args << argv[i];
+
+	UserSettings settings;
+	ProcessCmdArgs(settings, args);
 
 	std::vector<double> xKnown;
-	std::vector<double> x0(size);
-
-	xKnown.reserve(size);
-	for(int i = 0; i < size; i++)
+	std::vector<double> x0(settings.size);
+	std::vector<double> x;
+	xKnown.reserve(settings.size);
+	for(int i = 0; i < settings.size; i++)
 		xKnown.push_back(i + 1);
 
-	std::shared_ptr<LinearSystem> system;
-	system = generator->Generate(size, sparseness, xKnown);
-	std::cout << "Generated matrix with this parameters:\n" << "size: " << size << "\n" << "sparseness: " << sparseness << std::endl;
-
-	ISolver* solver = CreateSolver(system, parser.isSet(gpuOption));
-	std::vector<double> x;
+	std::shared_ptr<LinearSystem> system = CreateGenerator()->Generate(settings.size, settings.sparseness, xKnown);
+	ISolver* solver = CreateSolver(system, settings.useGPU);
+	settings.writeResult &= solver->Solve(x, x0, 1e-10, settings.maxItt);
 	
-	writeResult &= solver->Solve(x, x0, 1e-10, maxItt);
-	
-	if (writeResult)
-	{
-		for(auto elem : x)
-			std::cout << elem << " ";
-		std::cout << std::endl;
-	}
+	if (settings.writeResult)
+		WriteResult(x);
 }

@@ -23,6 +23,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z")
 set(SOURCES source/main.cpp
 		source/solver/Solver.cpp
 		source/solver/SolverGPU.cpp
+		source/solver/CreateSolver.cpp
 		source/utils/MatrixUtils.cpp
 		${ADDITIONAL_SOURCE}
 )
