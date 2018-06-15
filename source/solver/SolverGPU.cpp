@@ -1,15 +1,12 @@
 #include "SolverGPU.h"
-#include "fstream"
 #include "iostream"
 
 #include <QOffscreenSurface>
-#include <QTimer>
-#include <QEventLoop>
 
-#include "source/matrixGenerator/Matrix.h"
+#include "source/Matrix.h"
 
-SolverGPU::SolverGPU(const shared_ptr<Matrix> a)
-	: a(a)
+SolverGPU::SolverGPU(const std::shared_ptr<LinearSystem> system)
+	: ls(system)
 {
 	QSurfaceFormat format;
 	format.setMajorVersion(4);
@@ -40,12 +37,12 @@ SolverGPU::SolverGPU(const shared_ptr<Matrix> a)
 	functions.glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &maxWorkInvocations);
 	functions.glGetIntegerv(GL_MAX_COMPUTE_SHARED_MEMORY_SIZE, &maxSharedMemorySize);
 
-	std::cout << "GL_MAX_COMPUTE_WORK_GROUP_SIZE\t" << "x: " << maxWorkSize[0] << "\ty: " << maxWorkSize[1] << "\tz: " << maxWorkSize[2] << endl;
-	std::cout << "GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS\t" << maxWorkInvocations << endl;
-	std::cout << "GL_MAX_COMPUTE_SHARED_MEMORY_SIZE\t" << maxSharedMemorySize << endl;
+	std::cout << "GL_MAX_COMPUTE_WORK_GROUP_SIZE\t" << "x: " << maxWorkSize[0] << "\ty: " << maxWorkSize[1] << "\tz: " << maxWorkSize[2] << std::endl;
+	std::cout << "GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS\t" << maxWorkInvocations << std::endl;
+	std::cout << "GL_MAX_COMPUTE_SHARED_MEMORY_SIZE\t" << maxSharedMemorySize << std::endl;
 }
 
-bool SolverGPU::Solve(vector<double> & x, const vector<double> & x0, double eps, int maxItt)
+bool SolverGPU::Solve(std::vector<double>& x, const std::vector<double>& x0, double eps, int maxItt)
 {
 	auto pew = eps + maxItt;
 	pew += x0.size();

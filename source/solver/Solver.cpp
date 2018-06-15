@@ -1,35 +1,35 @@
 #include "Solver.h"
 #include "iostream"
 
-#include "source/matrixGenerator/Matrix.h"
-#include "MatrixUtils.h"
+#include "source/utils/MatrixUtils.h"
+#include "source/LinearSystem.h"
 
-Solver::Solver(const shared_ptr<Matrix> a) :
-	a(a)
+Solver::Solver(const std::shared_ptr<LinearSystem> system) :
+	ls(system)
 {
 }
 
-bool Solver::Solve(vector<double> & x, const vector<double> & x0, double eps, int maxItt)
+bool Solver::Solve(std::vector<double> & x, const std::vector<double> & x0, double eps, int maxItt)
 {
-	vector<double> r = a->b - a * x0;
-	vector<double> p = r;
+	std::vector<double> r = ls->b - ls->matrix * x0;
+	std::vector<double> p = r;
 	x = std::move(x0);
 
 	double alpha;
 	double beta;
-	double bbScalar = FindScalar(a->b, a->b);
+	double bbScalar = FindScalar(ls->b, ls->b);
 
 	for (int k = 0; k < maxItt; k++)
 	{
 		double rrScalar = FindScalar(r, r);
-		alpha = rrScalar / FindScalar(a * p, p);
+		alpha = rrScalar / FindScalar(ls->matrix * p, p);
 		x = x + (alpha * p);
-		r = r - (alpha * (a * p));
+		r = r - (alpha * (ls->matrix * p));
 		beta = FindScalar(r, r) / rrScalar;
 		p = r + (beta * p);
 
 		double diff = rrScalar / bbScalar;
-		cout << k + 1 << "\t" << "diff = " << diff << std::endl;
+		std::cout << k + 1 << "\t" << "diff = " << diff << std::endl;
 
 	if (diff < eps)
 		break;

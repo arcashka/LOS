@@ -5,8 +5,10 @@
 
 #include "solver/Solver.h"
 #include "solver/SolverGPU.h"
+
 #include "matrixGenerator/Generator.h"
-#include "matrixGenerator/Matrix.h"
+
+#include "LinearSystem.h"
 
 int main(int argc, char *argv[])
 {
@@ -40,25 +42,25 @@ int main(int argc, char *argv[])
 
 	IGenerator* generator = (IGenerator*)new Generator();
 
-	auto CreateSolver = [](std::shared_ptr<Matrix> matrix, bool useGPU) -> ISolver* {
+	auto CreateSolver = [](const std::shared_ptr<LinearSystem> system, bool useGPU) -> ISolver* {
 		if(useGPU)
-			return new SolverGPU(matrix);
+			return new SolverGPU(system);
 		else
-			return new Solver(matrix);
+			return new Solver(system);
 	};	
 
-	vector<double> xKnown;
-	vector<double> x0(size);
+	std::vector<double> xKnown;
+	std::vector<double> x0(size);
 
 	xKnown.reserve(size);
 	for(int i = 0; i < size; i++)
 		xKnown.push_back(i + 1);
 
-	std::shared_ptr<Matrix> matrix;
-	matrix = generator->Generate(size, sparseness, xKnown);
+	std::shared_ptr<LinearSystem> system;
+	system = generator->Generate(size, sparseness, xKnown);
 	std::cout << "Generated matrix with this parameters:\n" << "size: " << size << "\n" << "sparseness: " << sparseness << std::endl;
 
-	ISolver* solver = CreateSolver(matrix, parser.isSet(gpuOption));
+	ISolver* solver = CreateSolver(system, parser.isSet(gpuOption));
 	std::vector<double> x;
 	
 	writeResult &= solver->Solve(x, x0, 1e-10, maxItt);

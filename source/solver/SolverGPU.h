@@ -9,21 +9,17 @@
 
 #include "ISolver.h"
 
-struct Matrix;
-
-using namespace std;
+struct LinearSystem;
 
 class SolverGPU : public QObject, public ISolver
 {
 	Q_OBJECT
 public:
-	SolverGPU(const shared_ptr<Matrix> a);
+	SolverGPU(const std::shared_ptr<LinearSystem> ls);
 
-	bool Solve(vector<double> & x, const vector<double> & x0, double eps, int maxItt) override;
-
-private:
-	shared_ptr<Matrix> a;
+	bool Solve(std::vector<double> & x, const std::vector<double> & x0, double eps, int maxItt) override;
 
 private:
+	std::shared_ptr<LinearSystem> ls;
 	QOpenGLShaderProgram *program;
 };

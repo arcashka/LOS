@@ -1,13 +1,12 @@
 #pragma once
 
 #include <vector>
-#include <memory>
 
 struct Matrix;
 
 std::vector<double> operator*(double alpha, const std::vector<double>& v);
 
-std::vector<double> operator*(std::shared_ptr<Matrix> A, const std::vector<double>& v);
+std::vector<double> operator*(const Matrix& A, const std::vector<double>& v);
 
 double FindScalar(const std::vector<double>& vec1, const std::vector<double>& vec2);
 

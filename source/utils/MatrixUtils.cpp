@@ -1,9 +1,8 @@
 #include "MatrixUtils.h"
 
 #include <vector>
-#include <memory>
 
-#include "source/matrixGenerator/Matrix.h"
+#include "source/Matrix.h"
 
 using namespace std;
 
@@ -16,19 +15,19 @@ vector<double> operator*(double alpha, const vector<double>& v)
 	return temp;
 }
 
-vector<double> operator*(shared_ptr<Matrix> A, const vector<double>& v)
+vector<double> operator*(const Matrix& A, const vector<double>& v)
 {
 	vector<double> temp;
 	temp.resize(v.size());
 
 	for(size_t i = 0; i < v.size(); i++)
-		temp[i] = A->di[i] * v[i];
+		temp[i] = A.di[i] * v[i];
 
 	for(size_t i = 0; i < v.size(); i++)
-		for(int j = A->ig[i]; j < A->ig[i + 1]; ++j)
+		for(int j = A.ig[i]; j < A.ig[i + 1]; ++j)
 		{
-			temp[i] += A->ggl[j] * v[A->jg[j]];
-			temp[A->jg[j]] += A->ggl[j] * v[i];
+			temp[i] += A.ggl[j] * v[A.jg[j]];
+			temp[A.jg[j]] += A.ggl[j] * v[i];
 		}
 
 	return temp;
