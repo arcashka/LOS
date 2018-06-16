@@ -1,4 +1,4 @@
-#include <QApplication>
+#include <QGuiApplication>
 #include <QCommandLineParser>
 
 #include <iostream>
@@ -43,7 +43,7 @@ void ProcessCmdArgs(UserSettings& settings, const QStringList& args)
 
 	parser.process(args);
 
-	settings.useGPU = parser.isSet(gpuOption);
+	settings.useGPU      = parser.isSet(gpuOption);
 	settings.writeResult = parser.isSet(outOption);
 	settings.size        = parser.isSet(sizeOption)       ? parser.value(sizeOption).toInt()       : DEFAULT_SIZE;
 	settings.sparseness  = parser.isSet(sparsenessOption) ? parser.value(sparsenessOption).toInt() : DEFAULT_SPARSENESS;
@@ -59,12 +59,10 @@ void WriteResult(const std::vector<double> & x)
 
 int main(int argc, char *argv[])
 {
-	QStringList args;
-	for (int i = 0; i < argc; ++i)
-		args << argv[i];
+	QGuiApplication app(argc, argv);
 
 	UserSettings settings;
-	ProcessCmdArgs(settings, args);
+	ProcessCmdArgs(settings, app.arguments());
 
 	std::vector<double> xKnown;
 	std::vector<double> x0(settings.size);
