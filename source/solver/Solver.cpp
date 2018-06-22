@@ -22,9 +22,10 @@ bool Solver::Solve(std::vector<double> & x, const std::vector<double> & x0, doub
 	for (int k = 0; k < maxItt; k++)
 	{
 		double rrScalar = FindScalar(r, r);
-		alpha = rrScalar / FindScalar(ls->matrix * p, p);
+		auto ap = ls->matrix * p;
+		alpha = rrScalar / FindScalar(ap, p);
 		x = x + (alpha * p);
-		r = r - (alpha * (ls->matrix * p));
+		r = r - (alpha * ap);
 		beta = FindScalar(r, r) / rrScalar;
 		p = r + (beta * p);
 

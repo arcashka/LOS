@@ -4,4 +4,5 @@ DONE 1. b shouldn't be a part of Matrix. Make some struct that holds Matrix and 
 4. CODESTYLE
 5. Make sure you at least know what ur doing with std::move in Generator.cpp
 DONE 6. Clear main, split something in functions KISS
-7. Return QApplication (QCoreApplication probably)
+DONE 7. Return QApplication (QCoreApplication probably) (QGuiApplication actually)
+8. At least try to start with GPU
