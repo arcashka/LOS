@@ -25,6 +25,7 @@ set(SOURCES source/main.cpp
 		source/solver/SolverGPU.cpp
 		source/solver/CreateSolver.cpp
 		source/utils/MatrixUtils.cpp
+		source/timer/Timer.cpp
 		${ADDITIONAL_SOURCE}
 )
 

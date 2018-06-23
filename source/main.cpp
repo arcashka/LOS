@@ -7,6 +7,8 @@
 #include "source/solver/ISolver.h"
 
 #include "source/matrixGenerator/CreateGenerator.h"
+
+#include "source/timer/Timer.h"
 #include "LinearSystem.h"
 
 struct UserSettings
@@ -73,8 +75,13 @@ int main(int argc, char *argv[])
 
 	std::shared_ptr<LinearSystem> system = CreateGenerator()->Generate(settings.size, settings.sparseness, xKnown);
 	ISolver* solver = CreateSolver(system, settings.useGPU);
+
+	Timer timer;
+	timer.Start();
 	settings.writeResult &= solver->Solve(x, x0, 1e-10, settings.maxItt);
-	
+	std::string time = timer.Result();
+
 	if (settings.writeResult)
 		WriteResult(x);
+	std::cout << "Time: " << time << std::endl;
 }
