@@ -17,6 +17,3 @@ std::string Timer::Result()
 	const std::string time = std::to_string(ticks) + "ms";
 	return time;
 }
-	
-
-
