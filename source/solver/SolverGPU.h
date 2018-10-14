@@ -1,6 +1,5 @@
 #pragma once
 
-#include <QObject>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLFunctions_4_5_Core>
 
@@ -21,5 +20,5 @@ public:
 
 private:
 	std::shared_ptr<LinearSystem> ls;
-	QOpenGLShaderProgram *program;
+	std::unique_ptr<QOpenGLShaderProgram> program;
 };

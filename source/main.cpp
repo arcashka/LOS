@@ -21,9 +21,9 @@ struct UserSettings
 };
 
 namespace {
-	int DEFAULT_SIZE       = 100;
-	int DEFAULT_SPARSENESS = 10;
-	int DEFAULT_MAX_ITT    = 40;
+	constexpr int DEFAULT_SIZE       = 100;
+	constexpr int DEFAULT_SPARSENESS = 10;
+	constexpr int DEFAULT_MAX_ITT    = 40;
 }
 
 void ProcessCmdArgs(UserSettings& settings, const QStringList& args)

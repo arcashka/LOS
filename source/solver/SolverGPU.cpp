@@ -23,10 +23,11 @@ SolverGPU::SolverGPU(const std::shared_ptr<LinearSystem> system)
 
 	QOpenGLFunctions_4_5_Core functions;
 	functions.initializeOpenGLFunctions();
-	program = new QOpenGLShaderProgram();
+	program = std::unique_ptr<QOpenGLShaderProgram>();
 	program->addShaderFromSourceFile(QOpenGLShader::Compute, ":/shaders/compute.glsl");
 	program->link();
 	program->bind();
+
 	int maxWorkInvocations, maxSharedMemorySize;
 	int maxWorkSize[3];
 
