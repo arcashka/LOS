@@ -1,7 +1,10 @@
 #include "SolverGPU.h"
-#include "iostream"
+
+#include <iostream>
 
 #include <QOffscreenSurface>
+#include <QOpenGLFunctions_4_5_Core>
+#include <QOpenGLShaderProgram>
 
 #include "source/Matrix.h"
 
@@ -23,10 +26,17 @@ SolverGPU::SolverGPU(const std::shared_ptr<LinearSystem> system)
 
 	QOpenGLFunctions_4_5_Core functions;
 	functions.initializeOpenGLFunctions();
-	program = std::unique_ptr<QOpenGLShaderProgram>();
+	program = std::unique_ptr<QOpenGLShaderProgram>(new QOpenGLShaderProgram());
 	program->addShaderFromSourceFile(QOpenGLShader::Compute, ":/shaders/compute.glsl");
 	program->link();
 	program->bind();
+
+	GLuint bufferAddress;
+	functions.glCreateBuffers(1, &bufferAddress);
+	functions.glBindBuffer(GL_ARRAY_BUFFER, bufferAddress);
+	GLsizeiptr size = 3;
+	const double data[] = { 1.0, 0.0, -1.0 };
+	functions.glNamedBufferStorage(bufferAddress, size, &data, GL_MAP_READ_BIT);
 
 	int maxWorkInvocations, maxSharedMemorySize;
 	int maxWorkSize[3];

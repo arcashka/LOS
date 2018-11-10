@@ -1,18 +1,15 @@
 #pragma once
 
-#include <QOpenGLShaderProgram>
-#include <QOpenGLFunctions_4_5_Core>
-
 #include <memory>
 #include <vector>
 
 #include "ISolver.h"
 
 struct LinearSystem;
+class  QOpenGLShaderProgram;
 
-class SolverGPU : public QObject, public ISolver
+class SolverGPU : public ISolver
 {
-	Q_OBJECT
 public:
 	SolverGPU(const std::shared_ptr<LinearSystem> ls);
 
