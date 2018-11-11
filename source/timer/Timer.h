@@ -7,8 +7,8 @@
 class Timer
 {
 public:
-	Timer() {};
-	~Timer() {};
+	Timer() {}
+	~Timer() {}
 	void Start();
 	std::string Result();
 

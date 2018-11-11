@@ -7,6 +7,7 @@
 
 struct LinearSystem;
 class  QOpenGLShaderProgram;
+class  QOpenGLFunctions_4_5_Core;
 
 class SolverGPU : public ISolver
 {
@@ -16,6 +17,6 @@ public:
 	bool Solve(std::vector<double> & x, const std::vector<double> & x0, double eps, int maxItt) override;
 
 private:
-	std::shared_ptr<LinearSystem> ls;
-	std::unique_ptr<QOpenGLShaderProgram> program;
+	struct Impl;
+	std::unique_ptr<Impl> impl;
 };
