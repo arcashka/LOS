@@ -1,6 +1,7 @@
 **/build*
 *.srctr*
 *.swp
+*.user
 **/CMakeFiles*
 CMakeCache.txt
 compile_commands.json
