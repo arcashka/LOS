@@ -6,8 +6,6 @@
 #include "ISolver.h"
 
 struct LinearSystem;
-class  QOpenGLShaderProgram;
-class  QOpenGLFunctions_4_5_Core;
 
 class SolverGPU : public ISolver
 {
