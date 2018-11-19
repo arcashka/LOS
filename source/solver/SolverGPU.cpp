@@ -14,12 +14,14 @@ struct Addresses {
 	GLuint ggl;
 	GLuint ig;
 	GLuint jg;
+	GLuint x0;
 	GLuint out;
 };
 
 struct SolverGPU::Impl {
 	Impl(const std::shared_ptr<LinearSystem> system)
 		: ls(system)
+		, size(ls->b.size())
 	{
 		QSurfaceFormat format;
 		format.setMajorVersion(4);
@@ -36,7 +38,11 @@ struct SolverGPU::Impl {
 
 		program.addShaderFromSourceFile(QOpenGLShader::Compute, ":/shaders/compute.glsl");
 		program.link();
-		program.bind();
+	}
+
+	void SetSolverParameters(const std::vector<double> x0, int maxItt, double eps)
+	{
+		this->x0 = x0;
 	}
 
 	void PrintGPUInfo()
@@ -60,38 +66,47 @@ struct SolverGPU::Impl {
 	void CreateReadBuffer(GLuint& address, std::vector<T>& data) {
 		functions.glCreateBuffers(1, &address);
 		functions.glBindBuffer(GL_SHADER_STORAGE_BUFFER, address);
-		functions.glNamedBufferStorage(address, data.size(), data.data(), 0);
+		functions.glNamedBufferStorage(address, sizeof(double) * data.size(), data.data(), 0);
 	}
 
-	void CreateBuffers()
+	void TransferDataToGL()
 	{
-//		CreateReadBuffer(bufferAddresses.b,   ls->b);
-//		CreateReadBuffer(bufferAddresses.di,  ls->matrix.di);
-//		CreateReadBuffer(bufferAddresses.ggl, ls->matrix.ggl);
-//		CreateReadBuffer(bufferAddresses.ig,  ls->matrix.ig);
-//		CreateReadBuffer(bufferAddresses.jg,  ls->matrix.jg);
-		auto b = std::vector<double>(100, 20);
-		CreateReadBuffer(bufferAddresses.b,   b);
-		CreateReadBuffer(bufferAddresses.di,  b);
+		program.bind();
+		CreateReadBuffer(bufferAddresses.b,   ls->b);
+		CreateReadBuffer(bufferAddresses.di,  ls->matrix.di);
 		CreateReadBuffer(bufferAddresses.ggl, ls->matrix.ggl);
 		CreateReadBuffer(bufferAddresses.ig,  ls->matrix.ig);
 		CreateReadBuffer(bufferAddresses.jg,  ls->matrix.jg);
+		CreateReadBuffer(bufferAddresses.x0,  x0);
 
 		functions.glCreateBuffers(1, &bufferAddresses.out);
 		functions.glBindBuffer(GL_SHADER_STORAGE_BUFFER, bufferAddresses.out);
-		functions.glNamedBufferStorage(bufferAddresses.out, ls->matrix.di.size(), nullptr, GL_MAP_READ_BIT);
+		functions.glNamedBufferStorage(bufferAddresses.out, sizeof(double) * ls->b.size(), nullptr, GL_MAP_READ_BIT);
+
+		GLint u_size   = program.uniformLocation("size");
+		GLint u_eps    = program.uniformLocation("eps");
+		GLint u_maxItt = program.uniformLocation("maxItt");
+
+		program.setUniformValue(u_size,   size);
+		program.setUniformValue(u_eps,    static_cast<float>(eps));
+		program.setUniformValue(u_maxItt, maxItt);
+
+		program.release();
 	}
 
 	void RunProgram()
 	{
+		program.bind();
 		functions.glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, bufferAddresses.b);
 		functions.glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, bufferAddresses.di);
 		functions.glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, bufferAddresses.ggl);
 		functions.glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, bufferAddresses.ig);
 		functions.glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, bufferAddresses.jg);
-		functions.glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, bufferAddresses.out);
+		functions.glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, bufferAddresses.x0);
+		functions.glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, bufferAddresses.out);
 
 		functions.glDispatchCompute(1, 1, 1);
+		program.release();
 	}
 
 	std::vector<double> ReadData()
@@ -113,6 +128,11 @@ struct SolverGPU::Impl {
 	QOpenGLFunctions_4_5_Core functions;
 	QOpenGLContext            context;
 	QOffscreenSurface         surface;
+
+	std::vector<double> x0;
+	int                 size;
+	int                 maxItt;
+	double              eps;
 };
 
 SolverGPU::SolverGPU(const std::shared_ptr<LinearSystem> system)
@@ -122,10 +142,11 @@ SolverGPU::SolverGPU(const std::shared_ptr<LinearSystem> system)
 
 bool SolverGPU::Solve(std::vector<double>& x, const std::vector<double>& x0, double eps, int maxItt)
 {
+	impl->SetSolverParameters(x0, maxItt, eps);
 	impl->PrintGPUInfo();
-	impl->CreateBuffers();
+	impl->TransferDataToGL();
 	impl->RunProgram();
-	auto a = impl->ReadData();
+	x = impl->ReadData();
 
 	return true;
 }
