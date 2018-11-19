@@ -23,6 +23,9 @@ vector<double> operator*(const Matrix& A, const vector<double>& v)
 	for(size_t i = 0; i < v.size(); i++)
 		temp[i] = A.di[i] * v[i];
 
+	if (A.ig.empty())
+		return temp;
+
 	for(size_t i = 0; i < v.size(); i++)
 		for(int j = A.ig[i]; j < A.ig[i + 1]; ++j)
 		{

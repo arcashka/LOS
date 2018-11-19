@@ -1,9 +1,10 @@
 #version 450 core
+#extension GL_NV_shader_atomic_float : enable
 
 // TODO: CONFIGURE THIS CONST
 const int cs = 3;
 
-layout (local_size_x = 100) in;
+layout (local_size_x = cs) in;
 
 layout (binding = 0) buffer bBuffer
 {
@@ -92,7 +93,7 @@ void main(void)
 	double alpha;
 	double beta;
 
-	MultVecToA(b.v, temp);
+	MultVecToA(x0.v, temp);
 
 	Stop();
 
@@ -101,10 +102,12 @@ void main(void)
 	Stop();
 
 	xTemp = x0.v;
-	FindScalar(b.v, b.v, bb);
-	FindScalar(r, r, rr1);
-
+//	FindScalar(b.v, b.v, bb);
+	atomicAdd(qq, float(b.v[i] * b.v[i]));
+	o.v[i] = bb;
 	return;
+	FindScalar(r, r, rr1);
+	Stop();
 
 	for (int k = 0; k < maxItt; k++)
 	{

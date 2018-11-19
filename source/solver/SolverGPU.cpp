@@ -112,10 +112,10 @@ struct SolverGPU::Impl {
 	std::vector<double> ReadData()
 	{
 		double* mapped =
-				reinterpret_cast<double*>(functions.glMapNamedBufferRange(bufferAddresses.out, 0, 100, GL_MAP_READ_BIT));
+				reinterpret_cast<double*>(functions.glMapNamedBufferRange(bufferAddresses.out, 0, size, GL_MAP_READ_BIT));
 
 		std::vector<double> out1;
-		out1.insert(out1.end(), &mapped[0], &mapped[ls->b.size()]);
+		out1.insert(out1.end(), &mapped[0], &mapped[size]);
 
 		functions.glUnmapNamedBuffer(bufferAddresses.out);
 		return out1;
