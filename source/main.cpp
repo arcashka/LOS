@@ -52,7 +52,7 @@ void ProcessCmdArgs(UserSettings& settings, const QStringList& args)
 	settings.maxItt      = parser.isSet(maxIttOption)     ? parser.value(maxIttOption).toInt()     : DEFAULT_MAX_ITT;
 }
 
-void WriteResult(const std::vector<double> & x)
+void WriteResult(const std::vector<float> & x)
 {
 	for(auto elem : x)
 		std::cout << elem << " ";
@@ -66,10 +66,10 @@ int main(int argc, char *argv[])
 	UserSettings settings;
 	ProcessCmdArgs(settings, app.arguments());
 
-	std::vector<double> xKnown;
-//	std::vector<double> x0(settings.size);
-	std::vector<double> x0(3);
-	std::vector<double> x;
+	std::vector<float> xKnown;
+//	std::vector<float> x0(settings.size);
+	std::vector<float> x0(3);
+	std::vector<float> x;
 	xKnown.reserve(settings.size);
 	for(int i = 0; i < settings.size; i++)
 		xKnown.push_back(i + 1);

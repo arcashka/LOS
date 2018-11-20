@@ -5,5 +5,5 @@
 struct LinearSystem
 {
 	Matrix matrix;
-	std::vector<double> b;
+	std::vector<float> b;
 };

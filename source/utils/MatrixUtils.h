@@ -4,12 +4,12 @@
 
 struct Matrix;
 
-std::vector<double> operator*(double alpha, const std::vector<double>& v);
+std::vector<float> operator*(float alpha, const std::vector<float>& v);
 
-std::vector<double> operator*(const Matrix& A, const std::vector<double>& v);
+std::vector<float> operator*(const Matrix& A, const std::vector<float>& v);
 
-double FindScalar(const std::vector<double>& vec1, const std::vector<double>& vec2);
+float FindScalar(const std::vector<float>& vec1, const std::vector<float>& vec2);
 
-std::vector<double> operator+(const std::vector<double>& v1, const std::vector<double>& v2);
+std::vector<float> operator+(const std::vector<float>& v1, const std::vector<float>& v2);
 
-std::vector<double> operator-(const std::vector<double>& v1, const std::vector<double>& v2);
+std::vector<float> operator-(const std::vector<float>& v1, const std::vector<float>& v2);

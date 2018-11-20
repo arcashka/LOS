@@ -8,15 +8,15 @@ layout (local_size_x = cs) in;
 
 layout (binding = 0) buffer bBuffer
 {
-	double v[cs];
+	float v[cs];
 } b;
 layout (binding = 1) buffer diBuffer
 {
-	double v[cs];
+	float v[cs];
 } di;
 layout (binding = 2) buffer gglBuffer
 {
-	double v[];
+	float v[];
 } ggl;
 layout (binding = 3) buffer igBuffer
 {
@@ -28,11 +28,11 @@ layout (binding = 4) buffer jgBuffer
 } jg;
 layout (binding = 5) buffer x0Buffer
 {
-	double v[cs];
+	float v[cs];
 } x0;
 layout (binding = 6) buffer outBuffer
 {
-	double v[cs];
+	float v[cs];
 } o;
 
 uniform int size;
@@ -41,16 +41,16 @@ uniform float eps;
 
 const uint i = gl_LocalInvocationID.x;
 
-shared double p[cs];
-shared double r[cs];
-shared double temp[cs];
-shared double ap[cs];
-shared double xTemp[cs];
+shared float p[cs];
+shared float r[cs];
+shared float temp[cs];
+shared float ap[cs];
+shared float xTemp[cs];
 
-shared double bb;
-shared double rr;
-shared double rr1;
-shared double app;
+shared float bb = 0.f;
+shared float rr = 0.f;
+shared float rr1 = 0.f;
+shared float app = 0.f;
 
 void Stop()
 {
@@ -58,7 +58,7 @@ void Stop()
 	memoryBarrierShared();
 }
 
-void MultVecToA(double[cs] x, out double[cs] res)
+void MultVecToA(float[cs] x, out float[cs] res)
 {
 	res[i] = x[i] * di.v[i];
 	for (int j = ig.v[i]; j < ig.v[i + 1]; j++)
@@ -68,30 +68,20 @@ void MultVecToA(double[cs] x, out double[cs] res)
 	}
 }
 
-void VecMinVec(double[cs] x, double[cs] y, out double[cs] res)
+void VecMinVec(float[cs] x, float[cs] y, out float[cs] res)
 {
 	res[i] = x[i] - y[i];
 }
 
-void VecPlusVec(double[cs] x, double[cs] y, out double[cs] res)
-{
-	res[i] = x[i] + y[i];
-}
-
-void FindScalar(double[cs] x, double[cs] y, out double res)
-{
-	res += x[i] * y[i];
-}
-
-void VecMultByNumber(double[cs] x, double num, out double[cs] res)
+void VecMultByNumber(float[cs] x, float num, out float[cs] res)
 {
 	res[i] = x[i] * num;
 }
 
 void main(void)
 {
-	double alpha;
-	double beta;
+	float alpha = 0;
+	float beta = 0;
 
 	MultVecToA(x0.v, temp);
 
@@ -102,11 +92,10 @@ void main(void)
 	Stop();
 
 	xTemp = x0.v;
-//	FindScalar(b.v, b.v, bb);
-	atomicAdd(qq, float(b.v[i] * b.v[i]));
-	o.v[i] = bb;
-	return;
-	FindScalar(r, r, rr1);
+	p = r;
+	atomicAdd(bb, b.v[i] * b.v[i]);
+	atomicAdd(rr1, r[i] * r[i]);
+
 	Stop();
 
 	for (int k = 0; k < maxItt; k++)
@@ -116,25 +105,31 @@ void main(void)
 
 		Stop();
 
-		FindScalar(ap, p, app);
+		app = 0.f;
+		atomicAdd(app, ap[i] * p[i]);
 
 		Stop();
 
 		alpha = rr / app;
+//		if (k == 1)
+//		{
+//			o.v[i] = alpha;
+//			return;
+//		}
 		VecMultByNumber(p, alpha, temp);
 
 		Stop();
 
-		VecPlusVec(xTemp, temp, xTemp);
+		atomicAdd(xTemp[i], temp[i]);
 		VecMultByNumber(ap, alpha, temp);
 
 		Stop();
 
-		VecMinVec(r, temp, r);
+		atomicAdd(r[i], -temp[i]);
 
 		Stop();
-
-		FindScalar(r, r, rr1);
+		rr1 = 0.f;
+		atomicAdd(rr1, r[i] * r[i]);
 
 		Stop();
 
@@ -143,6 +138,10 @@ void main(void)
 
 		beta = rr1 / rr;
 		VecMultByNumber(p, beta, temp);
+
+		Stop();
+
+		p[i] = r[i] + temp[i];
 
 		Stop();
 	}

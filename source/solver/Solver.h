@@ -13,7 +13,7 @@ public:
 	Solver(const std::shared_ptr<LinearSystem> system);
 
 	// x0 - начальное приближение, maxItt - максимальное количество иттераций
-	bool Solve(std::vector<double> & x, const std::vector<double> & x0, double eps, int maxItt) override;
+	bool Solve(std::vector<float> & x, const std::vector<float> & x0, float eps, int maxItt) override;
 
 private:
 	std::shared_ptr<LinearSystem> ls;

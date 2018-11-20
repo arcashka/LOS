@@ -6,18 +6,18 @@
 
 using namespace std;
 
-vector<double> operator*(double alpha, const vector<double>& v)
+vector<float> operator*(float alpha, const vector<float>& v)
 {
-	vector<double> temp;
+	vector<float> temp;
 	temp.resize(v.size());
 	for(size_t i = 0; i < v.size(); i++)
 		temp[i] = v[i] * alpha;
 	return temp;
 }
 
-vector<double> operator*(const Matrix& A, const vector<double>& v)
+vector<float> operator*(const Matrix& A, const vector<float>& v)
 {
-	vector<double> temp;
+	vector<float> temp;
 	temp.resize(v.size());
 
 	for(size_t i = 0; i < v.size(); i++)
@@ -36,27 +36,27 @@ vector<double> operator*(const Matrix& A, const vector<double>& v)
 	return temp;
 }
 
-double FindScalar(const vector<double>& vec1, const vector<double>& vec2)
+float FindScalar(const vector<float>& vec1, const vector<float>& vec2)
 {
-	double scalar = 0;
+	float scalar = 0;
 	for(size_t i = 0; i < vec1.size(); i++)
 		scalar += vec1[i] * vec2[i];
 
 	return scalar;
 }
 
-vector<double> operator+(const vector<double>& v1, const vector<double>& v2)
+vector<float> operator+(const vector<float>& v1, const vector<float>& v2)
 {
-	vector<double> temp;
+	vector<float> temp;
 	temp.resize(v1.size());
 	for(size_t i = 0; i < v1.size(); i++)
 		temp[i] = v1[i] + v2[i];
 	return temp;
 }
 
-vector<double> operator-(const vector<double>& v1, const vector<double>& v2)
+vector<float> operator-(const vector<float>& v1, const vector<float>& v2)
 {
-	vector<double> temp;
+	vector<float> temp;
 	temp.resize(v1.size());
 	for(size_t i = 0; i < v1.size(); i++)
 		temp[i] = v1[i] - v2[i];
