@@ -55,8 +55,7 @@ void ProcessCmdArgs(UserSettings& settings, const QStringList& args)
 void WriteResult(const std::vector<float> & x)
 {
 	for(auto elem : x)
-		std::cout << elem << " ";
-	std::cout << std::endl;
+		std::cout << elem << std::endl;
 }
 
 int main(int argc, char *argv[])
@@ -67,8 +66,7 @@ int main(int argc, char *argv[])
 	ProcessCmdArgs(settings, app.arguments());
 
 	std::vector<float> xKnown;
-//	std::vector<float> x0(settings.size);
-	std::vector<float> x0(3);
+	std::vector<float> x0(settings.size);
 	std::vector<float> x;
 	xKnown.reserve(settings.size);
 	for(int i = 0; i < settings.size; i++)
@@ -78,12 +76,19 @@ int main(int argc, char *argv[])
 //	Matrix matrix { {1, 1, 1}, { 1 }, { 0, 0, 0, 1 }, { 0 } };
 //	std::shared_ptr<LinearSystem> system = std::make_shared<LinearSystem>(LinearSystem{{matrix}, {2, 1, 2}});
 	std::shared_ptr<LinearSystem> system = CreateGenerator()->Generate(settings.size, settings.sparseness, xKnown);
-	ISolver* solver = CreateSolver(system, true);
+	ISolver* solver = CreateSolver(system, settings.useGPU);
 
 	Timer timer;
 	timer.Start();
 	settings.writeResult &= solver->Solve(x, x0, 1e-10, settings.maxItt);
 	std::string time = timer.Result();
+
+	float trueDiff = 0;
+	for (size_t i = 0; i < x.size(); i++)
+	{
+		trueDiff += (xKnown[i] - x[i]) * (xKnown[i] - x[i]);
+	}
+	std::cout << "true diff: " << trueDiff << std::endl;
 
 	if (settings.writeResult)
 		WriteResult(x);
