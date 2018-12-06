@@ -74,10 +74,10 @@ int main(int argc, char *argv[])
 	for(int i = 0; i < settings.size; i++)
 		xKnown.push_back(i + 1);
 
-//	std::shared_ptr<LinearSystem> system = CreateGenerator()->Generate(settings.size, settings.sparseness, xKnown);
 //	ISolver* solver = CreateSolver(system, settings.useGPU);
-	Matrix matrix { {1, 1, 1}, { 1 }, { 0, 0, 0, 1 }, { 0 } };
-	std::shared_ptr<LinearSystem> system = std::make_shared<LinearSystem>(LinearSystem{{matrix}, {2, 1, 2}});
+//	Matrix matrix { {1, 1, 1}, { 1 }, { 0, 0, 0, 1 }, { 0 } };
+//	std::shared_ptr<LinearSystem> system = std::make_shared<LinearSystem>(LinearSystem{{matrix}, {2, 1, 2}});
+	std::shared_ptr<LinearSystem> system = CreateGenerator()->Generate(settings.size, settings.sparseness, xKnown);
 	ISolver* solver = CreateSolver(system, true);
 
 	Timer timer;

@@ -2,7 +2,7 @@
 #extension GL_NV_shader_atomic_float : enable
 
 // TODO: CONFIGURE THIS CONST
-const int cs = 3;
+const int cs = 100;
 
 layout (local_size_x = cs) in;
 
@@ -58,13 +58,13 @@ void Stop()
 	memoryBarrierShared();
 }
 
-void MultVecToA(float[cs] x, out float[cs] res)
+void MultVecToA(float[cs] x)
 {
-	res[i] = x[i] * di.v[i];
+	temp[i] = x[i] * di.v[i];
 	for (int j = ig.v[i]; j < ig.v[i + 1]; j++)
 	{
-		res[i] += ggl.v[j] * x[jg.v[j]];
-		res[jg.v[j]] += ggl.v[j] * x[i];
+		temp[i] += ggl.v[j] * x[jg.v[j]];
+		atomicAdd(temp[jg.v[j]], ggl.v[j] * x[i]);
 	}
 }
 
@@ -83,7 +83,7 @@ void main(void)
 	float alpha = 0;
 	float beta = 0;
 
-	MultVecToA(x0.v, temp);
+	MultVecToA(x0.v);
 
 	Stop();
 
@@ -101,10 +101,11 @@ void main(void)
 	for (int k = 0; k < maxItt; k++)
 	{
 		rr = rr1;
-		MultVecToA(p, ap);
+		MultVecToA(p);
 
 		Stop();
 
+		ap = temp;
 		app = 0.f;
 		atomicAdd(app, ap[i] * p[i]);
 
