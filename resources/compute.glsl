@@ -58,41 +58,27 @@ void Stop()
 	memoryBarrierShared();
 }
 
-void MultVecToA(float[cs] x)
-{
-	temp[i] = x[i] * di.v[i];
-	for (int j = ig.v[i]; j < ig.v[i + 1]; j++)
-	{
-		temp[i] += ggl.v[j] * x[jg.v[j]];
-		atomicAdd(temp[jg.v[j]], ggl.v[j] * x[i]);
-	}
-}
-
-void VecMinVec(float[cs] x, float[cs] y, out float[cs] res)
-{
-	res[i] = x[i] - y[i];
-}
-
-void VecMultByNumber(float[cs] x, float num, out float[cs] res)
-{
-	res[i] = x[i] * num;
-}
-
 void main(void)
 {
 	float alpha = 0;
 	float beta = 0;
 
-	MultVecToA(x0.v);
+	temp[i] = x0.v[i] * di.v[i];
+	for (int j = ig.v[i]; j < ig.v[i + 1]; j++)
+	{
+		temp[i] += ggl.v[j] * x0.v[jg.v[j]];
+		atomicAdd(temp[jg.v[j]], ggl.v[j] * x0.v[i]);
+	}
 
 	Stop();
 
-	VecMinVec(b.v, temp, r);
+	r[i] = b.v[i] - temp[i];
 
 	Stop();
 
 	xTemp = x0.v;
 	p = r;
+
 	atomicAdd(bb, b.v[i] * b.v[i]);
 	atomicAdd(rr1, r[i] * r[i]);
 
@@ -101,7 +87,12 @@ void main(void)
 	for (int k = 0; k < maxItt; k++)
 	{
 		rr = rr1;
-		MultVecToA(p);
+		temp[i] = p[i] * di.v[i];
+		for (int j = ig.v[i]; j < ig.v[i + 1]; j++)
+		{
+			temp[i] += ggl.v[j] * p[jg.v[j]];
+			atomicAdd(temp[jg.v[j]], ggl.v[j] * p[i]);
+		}
 
 		Stop();
 
@@ -112,17 +103,12 @@ void main(void)
 		Stop();
 
 		alpha = rr / app;
-//		if (k == 1)
-//		{
-//			o.v[i] = alpha;
-//			return;
-//		}
-		VecMultByNumber(p, alpha, temp);
+		temp[i] = alpha * p[i];
 
 		Stop();
 
 		atomicAdd(xTemp[i], temp[i]);
-		VecMultByNumber(ap, alpha, temp);
+		temp[i] = alpha * ap[i];
 
 		Stop();
 
@@ -138,7 +124,7 @@ void main(void)
 			break;
 
 		beta = rr1 / rr;
-		VecMultByNumber(p, beta, temp);
+		temp[i] = beta * p[i];
 
 		Stop();
 
