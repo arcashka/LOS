@@ -73,9 +73,6 @@ void main(void)
 	Stop();
 
 	r[i] = b.v[i] - temp[i];
-
-	Stop();
-
 	xTemp = x0.v;
 	p = r;
 
@@ -88,7 +85,6 @@ void main(void)
 	{
 		rr = rr1;
 		temp[i] = p[i] * di.v[i];
-		Stop();
 		for (int j = ig.v[i]; j < ig.v[i + 1]; j++)
 		{
 			temp[i] += ggl.v[j] * p[jg.v[j]];
@@ -99,7 +95,6 @@ void main(void)
 
 		ap = temp;
 		app = 0.f;
-		Stop();
 		atomicAdd(app, ap[i] * p[i]);
 
 		Stop();
