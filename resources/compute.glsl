@@ -95,6 +95,7 @@ void main(void)
 
 		ap = temp;
 		app = 0.f;
+		Stop();
 		atomicAdd(app, ap[i] * p[i]);
 
 		Stop();

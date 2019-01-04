@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
 
 	Timer timer;
 	timer.Start();
-	settings.writeResult &= solver->Solve(x, x0, 1e-15, settings.maxItt);
+	settings.writeResult &= solver->Solve(x, x0, 1e-20f, settings.maxItt);
 	std::string time = timer.Result();
 
 	float trueDiff = 0;
