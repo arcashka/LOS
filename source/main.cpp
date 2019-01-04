@@ -23,7 +23,7 @@ struct UserSettings
 namespace {
 	constexpr int DEFAULT_SIZE       = 100;
 	constexpr int DEFAULT_SPARSENESS = 10;
-	constexpr int DEFAULT_MAX_ITT    = 40;
+	constexpr int DEFAULT_MAX_ITT    = 100;
 }
 
 void ProcessCmdArgs(UserSettings& settings, const QStringList& args)
@@ -52,11 +52,10 @@ void ProcessCmdArgs(UserSettings& settings, const QStringList& args)
 	settings.maxItt      = parser.isSet(maxIttOption)     ? parser.value(maxIttOption).toInt()     : DEFAULT_MAX_ITT;
 }
 
-void WriteResult(const std::vector<double> & x)
+void WriteResult(const std::vector<float> & x)
 {
 	for(auto elem : x)
-		std::cout << elem << " ";
-	std::cout << std::endl;
+		std::cout << elem << std::endl;
 }
 
 int main(int argc, char *argv[])
@@ -66,9 +65,9 @@ int main(int argc, char *argv[])
 	UserSettings settings;
 	ProcessCmdArgs(settings, app.arguments());
 
-	std::vector<double> xKnown;
-	std::vector<double> x0(settings.size);
-	std::vector<double> x;
+	std::vector<float> xKnown;
+	std::vector<float> x0(settings.size);
+	std::vector<float> x;
 	xKnown.reserve(settings.size);
 	for(int i = 0; i < settings.size; i++)
 		xKnown.push_back(i + 1);
@@ -78,8 +77,15 @@ int main(int argc, char *argv[])
 
 	Timer timer;
 	timer.Start();
-	settings.writeResult &= solver->Solve(x, x0, 1e-10, settings.maxItt);
+	settings.writeResult &= solver->Solve(x, x0, 1e-20f, settings.maxItt);
 	std::string time = timer.Result();
+
+	float trueDiff = 0;
+	for (size_t i = 0; i < x.size(); i++)
+	{
+		trueDiff += (xKnown[i] - x[i]) * (xKnown[i] - x[i]);
+	}
+	std::cout << "true diff: " << trueDiff << std::endl;
 
 	if (settings.writeResult)
 		WriteResult(x);

@@ -40,9 +40,11 @@ struct SolverGPU::Impl {
 		program.link();
 	}
 
-	void SetSolverParameters(const std::vector<double> x0, int maxItt, double eps)
+	void SetSolverParameters(const std::vector<float> x0, int maxItt, float eps)
 	{
-		this->x0 = x0;
+		this->x0     = x0;
+		this->maxItt = maxItt;
+		this->eps    = eps;
 	}
 
 	void PrintGPUInfo()
@@ -66,7 +68,7 @@ struct SolverGPU::Impl {
 	void CreateReadBuffer(GLuint& address, std::vector<T>& data) {
 		functions.glCreateBuffers(1, &address);
 		functions.glBindBuffer(GL_SHADER_STORAGE_BUFFER, address);
-		functions.glNamedBufferStorage(address, sizeof(double) * data.size(), data.data(), 0);
+		functions.glNamedBufferStorage(address, sizeof(float) * data.size(), data.data(), 0);
 	}
 
 	void TransferDataToGL()
@@ -81,14 +83,14 @@ struct SolverGPU::Impl {
 
 		functions.glCreateBuffers(1, &bufferAddresses.out);
 		functions.glBindBuffer(GL_SHADER_STORAGE_BUFFER, bufferAddresses.out);
-		functions.glNamedBufferStorage(bufferAddresses.out, sizeof(double) * ls->b.size(), nullptr, GL_MAP_READ_BIT);
+		functions.glNamedBufferStorage(bufferAddresses.out, sizeof(float) * ls->b.size(), nullptr, GL_MAP_READ_BIT);
 
 		GLint u_size   = program.uniformLocation("size");
 		GLint u_eps    = program.uniformLocation("eps");
 		GLint u_maxItt = program.uniformLocation("maxItt");
 
 		program.setUniformValue(u_size,   size);
-		program.setUniformValue(u_eps,    static_cast<float>(eps));
+		program.setUniformValue(u_eps,    eps);
 		program.setUniformValue(u_maxItt, maxItt);
 
 		program.release();
@@ -109,13 +111,13 @@ struct SolverGPU::Impl {
 		program.release();
 	}
 
-	std::vector<double> ReadData()
+	std::vector<float> ReadData()
 	{
-		double* mapped =
-				reinterpret_cast<double*>(functions.glMapNamedBufferRange(bufferAddresses.out, 0, 100, GL_MAP_READ_BIT));
+		float* mapped =
+				reinterpret_cast<float*>(functions.glMapNamedBufferRange(bufferAddresses.out, 0, size, GL_MAP_READ_BIT));
 
-		std::vector<double> out1;
-		out1.insert(out1.end(), &mapped[0], &mapped[ls->b.size()]);
+		std::vector<float> out1;
+		out1.insert(out1.end(), &mapped[0], &mapped[size]);
 
 		functions.glUnmapNamedBuffer(bufferAddresses.out);
 		return out1;
@@ -129,10 +131,10 @@ struct SolverGPU::Impl {
 	QOpenGLContext            context;
 	QOffscreenSurface         surface;
 
-	std::vector<double> x0;
+	std::vector<float> x0;
 	int                 size;
 	int                 maxItt;
-	double              eps;
+	float              eps;
 };
 
 SolverGPU::SolverGPU(const std::shared_ptr<LinearSystem> system)
@@ -140,7 +142,7 @@ SolverGPU::SolverGPU(const std::shared_ptr<LinearSystem> system)
 {
 }
 
-bool SolverGPU::Solve(std::vector<double>& x, const std::vector<double>& x0, double eps, int maxItt)
+bool SolverGPU::Solve(std::vector<float>& x, const std::vector<float>& x0, float eps, int maxItt)
 {
 	impl->SetSolverParameters(x0, maxItt, eps);
 	impl->PrintGPUInfo();

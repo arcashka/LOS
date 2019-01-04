@@ -12,7 +12,7 @@ class SolverGPU : public ISolver
 public:
 	SolverGPU(const std::shared_ptr<LinearSystem> ls);
 
-	bool Solve(std::vector<double> & x, const std::vector<double> & x0, double eps, int maxItt) override;
+	bool Solve(std::vector<float> & x, const std::vector<float> & x0, float eps, int maxItt) override;
 
 private:
 	struct Impl;
