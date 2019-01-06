@@ -1,8 +1,7 @@
 #version 450 core
 #extension GL_NV_shader_atomic_float : enable
 
-// TODO: CONFIGURE THIS CONST
-const int cs = 100;
+const int cs = %LOCAL_SIZE%;
 
 layout (local_size_x = cs) in;
 
@@ -32,6 +31,7 @@ layout (binding = 5) buffer x0Buffer
 } x0;
 layout (binding = 6) buffer outBuffer
 {
+	int   itt;
 	float v[cs];
 } o;
 
@@ -60,6 +60,10 @@ void Stop()
 
 void main(void)
 {
+	p[i] = 0.f;
+	r[i] = 0.f;
+	ap[i] = 0.f;
+	xTemp[i] = 0.f;
 	float alpha = 0;
 	float beta = 0;
 
@@ -132,6 +136,7 @@ void main(void)
 
 		p[i] = r[i] + temp[i];
 
+		o.itt = k;
 		Stop();
 	}
 	Stop();

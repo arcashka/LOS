@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.10)
 
 set(PROJECT_NAME solver)
 set(CMAKE_AUTOMOC ON)
@@ -22,6 +22,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z")
 set(SOURCES source/main.cpp
 		source/solver/Solver.cpp
 		source/solver/SolverGPU.cpp
+		source/solver/ShaderAdapter.h
+		source/solver/ShaderAdapter.cpp
 		source/solver/CreateSolver.cpp
 		source/utils/MatrixUtils.cpp
 		source/timer/Timer.cpp

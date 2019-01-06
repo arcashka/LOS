@@ -23,7 +23,7 @@ struct UserSettings
 namespace {
 	constexpr int DEFAULT_SIZE       = 100;
 	constexpr int DEFAULT_SPARSENESS = 10;
-	constexpr int DEFAULT_MAX_ITT    = 100;
+	constexpr int DEFAULT_MAX_ITT    = 1000;
 }
 
 void ProcessCmdArgs(UserSettings& settings, const QStringList& args)
@@ -77,8 +77,12 @@ int main(int argc, char *argv[])
 
 	Timer timer;
 	timer.Start();
-	settings.writeResult &= solver->Solve(x, x0, 1e-20f, settings.maxItt);
+	int itt;
+	settings.writeResult &= solver->Solve(x, x0, 1e-20f, settings.maxItt, itt);
 	std::string time = timer.Result();
+
+	if (settings.writeResult)
+		WriteResult(x);
 
 	float trueDiff = 0;
 	for (size_t i = 0; i < x.size(); i++)
@@ -86,8 +90,6 @@ int main(int argc, char *argv[])
 		trueDiff += (xKnown[i] - x[i]) * (xKnown[i] - x[i]);
 	}
 	std::cout << "true diff: " << trueDiff << std::endl;
-
-	if (settings.writeResult)
-		WriteResult(x);
+	std::cout << "Solved in " << itt << " itterations" << std::endl;
 	std::cout << "Time: " << time << std::endl;
 }

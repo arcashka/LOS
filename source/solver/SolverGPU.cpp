@@ -7,6 +7,7 @@
 #include <QOpenGLShaderProgram>
 
 #include "source/LinearSystem.h"
+#include "source/solver/ShaderAdapter.h"
 
 struct Addresses {
 	GLuint b;
@@ -36,7 +37,8 @@ struct SolverGPU::Impl {
 
 		functions.initializeOpenGLFunctions();
 
-		program.addShaderFromSourceFile(QOpenGLShader::Compute, ":/shaders/compute.glsl");
+		QByteArray shaderCode = ShaderAdapter(":/shaders/compute.glsl", { size }).Adapt();
+		program.addShaderFromSourceCode(QOpenGLShader::Compute, shaderCode);
 		program.link();
 	}
 
@@ -68,7 +70,7 @@ struct SolverGPU::Impl {
 	void CreateReadBuffer(GLuint& address, std::vector<T>& data) {
 		functions.glCreateBuffers(1, &address);
 		functions.glBindBuffer(GL_SHADER_STORAGE_BUFFER, address);
-		functions.glNamedBufferStorage(address, sizeof(float) * data.size(), data.data(), 0);
+		functions.glNamedBufferStorage(address, sizeof(T) * data.size(), data.data(), 0);
 	}
 
 	void TransferDataToGL()
@@ -83,7 +85,7 @@ struct SolverGPU::Impl {
 
 		functions.glCreateBuffers(1, &bufferAddresses.out);
 		functions.glBindBuffer(GL_SHADER_STORAGE_BUFFER, bufferAddresses.out);
-		functions.glNamedBufferStorage(bufferAddresses.out, sizeof(float) * ls->b.size(), nullptr, GL_MAP_READ_BIT);
+		functions.glNamedBufferStorage(bufferAddresses.out, sizeof(float) * (ls->b.size() + 1), nullptr, GL_MAP_READ_BIT);
 
 		GLint u_size   = program.uniformLocation("size");
 		GLint u_eps    = program.uniformLocation("eps");
@@ -111,16 +113,18 @@ struct SolverGPU::Impl {
 		program.release();
 	}
 
-	std::vector<float> ReadData()
+	std::vector<float> ReadData(int & realItt)
 	{
 		float* mapped =
-				reinterpret_cast<float*>(functions.glMapNamedBufferRange(bufferAddresses.out, 0, size, GL_MAP_READ_BIT));
+				reinterpret_cast<float*>(functions.glMapNamedBufferRange(bufferAddresses.out, 0, size + 1, GL_MAP_READ_BIT));
+		int * itt = reinterpret_cast<int*>(&mapped[0]);
+		realItt = *itt;
 
-		std::vector<float> out1;
-		out1.insert(out1.end(), &mapped[0], &mapped[size]);
+		std::vector<float> result;
+		result.insert(result.end(), &mapped[1], &mapped[size + 1]);
 
 		functions.glUnmapNamedBuffer(bufferAddresses.out);
-		return out1;
+		return result;
 	}
 
 	Addresses bufferAddresses;
@@ -142,13 +146,13 @@ SolverGPU::SolverGPU(const std::shared_ptr<LinearSystem> system)
 {
 }
 
-bool SolverGPU::Solve(std::vector<float>& x, const std::vector<float>& x0, float eps, int maxItt)
+bool SolverGPU::Solve(std::vector<float>& x, const std::vector<float>& x0, float eps, int maxItt, int & realItt)
 {
 	impl->SetSolverParameters(x0, maxItt, eps);
 	impl->PrintGPUInfo();
 	impl->TransferDataToGL();
 	impl->RunProgram();
-	x = impl->ReadData();
+	x = impl->ReadData(realItt);
 
 	return true;
 }
